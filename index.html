@@ -1770,76 +1770,78 @@ label.rsvp-titulo {
 <script>
 
 /* =========================
+   CONTADOR DE TIEMPO (COUNTDOWN)
+========================== */
+
+// Configura la fecha del evento: 7 de Noviembre de 2026 a las 18:00 hs
+const eventDate = new Date("2026-11-07T18:00:00").getTime();
+
+function updateCountdown() {
+    const now = new Date().getTime();
+    const distance = eventDate - now;
+
+    if (distance < 0) {
+        document.getElementById("days").innerText = "00";
+        document.getElementById("hours").innerText = "00";
+        document.getElementById("minutes").innerText = "00";
+        document.getElementById("seconds").innerText = "00";
+        return;
+    }
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    document.getElementById("days").innerText = days < 10 ? '0' + days : days;
+    document.getElementById("hours").innerText = hours < 10 ? '0' + hours : hours;
+    document.getElementById("minutes").innerText = minutes < 10 ? '0' + minutes : minutes;
+    document.getElementById("seconds").innerText = seconds < 10 ? '0' + seconds : seconds;
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+
+/* =========================
    APERTURA Y MÚSICA
 ========================== */
 
 let isOpen = false;
 
-const audio =
-    document.getElementById('backgroundAudio');
-
-const musicButton =
-    document.getElementById('musicButton');
-
-const envelope =
-    document.getElementById('envelope');
+const audio = document.getElementById('backgroundAudio');
+const musicButton = document.getElementById('musicButton');
+const envelope = document.getElementById('envelope');
 
 audio.preload = "auto";
 
-
 function openEnvelope() {
-
     if (!isOpen) {
-
         isOpen = true;
-
         envelope.classList.add('open');
 
-        const playPromise =
-            audio.play();
-
+        const playPromise = audio.play();
         if (playPromise !== undefined) {
-
             playPromise.then(() => {
-
                 musicButton.classList.add('playing');
-
             }).catch(error => {
-
-                console.log(
-                    "Audio necesita interacción:",
-                    error
-                );
-
+                console.log("Audio necesita interacción:", error);
             });
-
         }
 
         initScrollAnimations();
-
     }
-
 }
 
-
 function toggleMusic(event) {
-
     event.stopPropagation();
-
     if (audio.paused) {
-
         audio.play();
-
         musicButton.classList.add('playing');
-
     } else {
-
         audio.pause();
-
         musicButton.classList.remove('playing');
-
     }
-
 }
 
 
@@ -1848,44 +1850,26 @@ function toggleMusic(event) {
 ========================== */
 
 function initScrollAnimations() {
+    const animatedElements = document.querySelectorAll('.animate-on-scroll');
+    const scrollContainer = document.getElementById('scrollContainer');
 
-    const animatedElements =
-        document.querySelectorAll(
-            '.animate-on-scroll'
-        );
-
-    const scrollContainer =
-        document.getElementById(
-            'scrollContainer'
-        );
-
-    const observer =
-        new IntersectionObserver(
-            (entries) => {
-
-                entries.forEach(entry => {
-
-                    if (entry.isIntersecting) {
-
-                        entry.target.classList.add('visible');
-
-                    }
-
-                });
-
-            },
-            {
-                root: scrollContainer,
-                threshold: 0.15
-            }
-        );
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        },
+        {
+            root: scrollContainer,
+            threshold: 0.15
+        }
+    );
 
     animatedElements.forEach(el => {
-
         observer.observe(el);
-
     });
-
 }
 
 
@@ -1942,11 +1926,9 @@ async function enviar() {
   const boton = document.getElementById('botonEnviar');
   const cantidad = parseInt(document.querySelector('input[name="cantidad"]:checked').value);
 
-  // Datos Persona 1
   const nombre1 = document.getElementById('nombre1').value.trim();
   const asistencia1 = document.querySelector('input[name="asistencia1"]:checked')?.value || '';
 
-  // Validaciones Persona 1
   if (!nombre1) {
     mostrarMensaje('Escribe el nombre completo de la persona 1.');
     return;
@@ -1960,7 +1942,6 @@ async function enviar() {
     return;
   }
 
-  // Datos Persona 2
   let nombre2 = '';
   let asistencia2 = '';
 
@@ -2006,7 +1987,6 @@ async function enviar() {
       return;
     }
 
-    // MENSAJE PERSONALIZADO SI NADIE ASISTE
     const vanAsistir = (asistencia1 === 'SI') || (cantidad === 2 && asistencia2 === 'SI');
 
     if (!vanAsistir) {
@@ -2015,11 +1995,9 @@ async function enviar() {
       mostrarMensaje(respuesta.mensaje || '¡Gracias por confirmar tu asistencia!');
     }
 
-    // FILTRADO ESTRICTO DE PASES SEGÚN ASISTENCIA "SI"
     if (respuesta.listaPases && respuesta.listaPases.length > 0) {
       let contadorPases = 0;
 
-      // Verificar Persona 1
       if (asistencia1 === 'SI') {
         const pase1 = respuesta.listaPases.find(p => p.nombre.toLowerCase().includes(nombre1.toLowerCase())) || respuesta.listaPases[0];
         if (pase1) {
@@ -2028,7 +2006,6 @@ async function enviar() {
         }
       }
 
-      // Verificar Persona 2
       if (cantidad === 2 && asistencia2 === 'SI') {
         const pase2 = respuesta.listaPases.find(p => p.nombre.toLowerCase().includes(nombre2.toLowerCase())) || respuesta.listaPases[contadorPases];
         if (pase2 && (pase2 !== respuesta.listaPases[0] || contadorPases === 0)) {
@@ -2139,3 +2116,4 @@ function escapar(texto) {
 </body>
 
 </html>
+
